@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=1">
+  <title>Список дел</title>
+  <style>
+  body {
+    font-family: Arial, sans-serif;
+    color: #565656;
+  }
+  .wrapper {
+    max-width:1200px;
+    margin: 20px auto;
+    text-align: center;
+    border: 1px solid #ddd;
+    background-color: azure;
+    border-radius: 15px;
+    box-shadow: 0 2px 15px 5px rgba(0,0,0, 0.7);
+    min-height: 85vh;
+    padding: 15px;
+  }
+  .outEnd{
+    margin-top: 70px;
+    margin-bottom: 20px;
+  }
+  .todo{
+    max-width: 90%;
+    padding: 5px 10px;
+    font-size: 17px;
+    color: #595959;
+    height: 40px;
+    border: none;
+    background-color: rgb(242, 242, 242);
+    border-radius: 7px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+  }
+  .btn {
+    background-color: rgb(129, 179, 210);
+    color: rgb(255, 255, 255);
+    padding: 10px;
+    width: 170px;
+    font-size: 15px;
+    font-weight: 700;
+    max-width: 85%;
+    border-radius: 7px;
+    text-transform: uppercase;
+    outline: none;
+    border: none;
+    cursor: pointer;
+  }
+  .btn:hover{
+    background-color: rgb(102, 158, 192);
+  }
+  .todo:hover{
+    background-color: rgb(229, 229, 229);
+  }
+  .todo:focus{
+    background-color: rgb(255, 255, 255);
+  }
+  table.bright, .brightEnd {
+  width: 70%;
+  margin-top: 7px;
+  margin-bottom: 5px;
+  margin-left:auto;
+  margin-right:auto;
+  border-collapse: collapse;
+  }
+  table.bright caption {
+    font-size:1.2em;
+    text-align:center;
+    padding:10px;
+    color:#3a6e9d;
+  }
+  table.bright tr:nth-child(even), .brightEnd tr:nth-child(even) {
+    background: #f4f6f7;
+  }
+  table.bright th, table.bright td, .brightEnd th, .brightEnd td {
+    font-size:15px;
+    border: 1px solid #dbdbdb;
+    text-align: center;
+    padding: 7px;
+  }
+  table.bright th {
+    color: #ffffff;
+    background: #2b5385;
+    background: -moz-linear-gradient(top, #1188F0 0%, #2b5385 60%);
+    background: -ms-linear-gradient(top, #1188F0 0%, #2b5385 60%);
+    background: -o-linear-gradient(top, #1188F0 0%, #2b5385 60%);
+    background: -webkit-linear-gradient(top, #1188F0 0%, #2b5385 60%);
+  }
+  .brightEnd th {
+    color: #ffffff;
+    background: #2b5385;
+    background: -moz-linear-gradient(top, rgb(17, 240, 115) 0%, rgb(54, 133, 43) 60%);
+  }
+  .brightEnd caption {
+    font-size:1.2em;
+    text-align:center;
+    padding: 15px;
+    color: rgb(28, 155, 18);
+  }
+  table.bright th:first-child {
+    width:75%;
+   }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <h1>Список дел</h1>
+    <input type="text" class="todo" size ="40" placeholder="Введите задание">
+    <button class="btn btn--add">Добавить</button>
+    <div class="out"></div>
+    <div class="outEnd"></div>
+    <button class="btn btn--reset">Очистить</button>
+  </div>
+  <template>
+    <table class="bright">
+      <tbody>
+        <tr>
+          <th>Дела</th>
+          <th>Выполнено</th>
+        </tr>
+      </tbody>
+    </table>
+  </template>
+  <template class="doit">
+    <table class="brightEnd">
+      <caption>Завершённые дела</caption>
+      <tbody>
+        <tr>
+          <th>Дела</th>
+        </tr>
+      </tbody>
+    </table>
+  </template>
+  <script>
+    var buttonAdd = document.querySelector(".btn--add");
+    var buttonReset = document.querySelector(".btn--reset");
+    var templateTable = document.querySelector("template").content.querySelector('table');
+    var templateTableEnd = document.querySelector("template.doit").content.querySelector('table');
+    var tableDo = templateTable.cloneNode(true);
+    var tableEnd = templateTableEnd.cloneNode(true);
+    var fragmentTable = document.querySelector(".out");
+    var fragmentTableEnd = document.querySelector(".outEnd");
+    var arrListEndSecond = [];
+    var toDoList = [];
+    fragmentTable.appendChild(tableDo);
+    fragmentTableEnd.appendChild(tableEnd);
+    if (localStorage.getItem('todo')) {
+      toDoList = JSON.parse(localStorage.getItem('todo'));
+      addToDo();
+    }
+    if (localStorage.getItem('doend')) {
+      arrListEndSecond = JSON.parse(localStorage.getItem('doend'));
+      doitTable();
+    }
+    buttonAdd.addEventListener("click", reloadToDo );
+    function reloadToDo (){
+      var toDo = document.querySelector(".todo").value;
+      if (toDo){
+        var temp = {
+          'do': toDo,
+          'check': false
+        }
+        var i = toDoList.length;
+        toDoList[i] = temp;
+        addToDo();
+        localStorage.setItem('todo', JSON.stringify(toDoList));
+      };
+    }
+    function addToDo (){
+      clearToDo();
+      for (var key in toDoList) {
+        if (toDoList[key].check == false){
+          var addTr = document.createElement('tr');
+          var addTdFirst = document.createElement('td');
+          var addTdSecond = document.createElement('td');
+          tableDo.querySelector('tbody').appendChild(addTr);
+          addTr.appendChild(addTdFirst);
+          addTr.appendChild(addTdSecond);
+          addTdFirst.innerHTML = toDoList[key].do;
+          addTdSecond.innerHTML = '<input type="checkbox">';
+          addTdSecond.querySelector('input').setAttribute('data-value', toDoList[key].do);
+        }
+        fragmentTable.addEventListener('change', clearChecked);
+      };
+      function clearChecked () {
+        var elementCheck = fragmentTable.querySelectorAll('input');
+        for (var key in toDoList) {
+          for (var i = 0; i < elementCheck.length; i++) {
+            if (elementCheck[i].checked && toDoList[key] ) {
+              if(elementCheck[i].getAttribute('data-value') === toDoList[key].do){
+                toDoList[key].check = true;
+                var arrListEnd = toDoList.filter(function(check){
+                return check.check === true;
+                });
+                toDoList = toDoList.filter(function(check){
+                return check.check === false;
+                });
+                addToDo ();
+                arrListEndSecond = arrListEndSecond.concat(arrListEnd)
+                doitTable();
+                localStorage.setItem('doend', JSON.stringify(arrListEndSecond));
+                localStorage.setItem('todo', JSON.stringify(toDoList));
+                };
+              };
+            };
+          };
+        };
+      };
+    function doitTable () {
+      clearDoend();
+      for (var key in arrListEndSecond) {
+        var addTrDoit = document.createElement('tr');
+        var addTdDoit = document.createElement('td');
+        tableEnd.querySelector('tbody').appendChild(addTrDoit);
+        addTrDoit.appendChild(addTdDoit);
+        addTdDoit.innerHTML = arrListEndSecond[key].do;
+      }
+    }
+    function clearToDo(){
+      var tableBright = document.querySelector(".bright")
+      fragmentTable.removeChild(tableBright);
+      templateTable = document.querySelector("template").content.querySelector('table');
+      tableDo = templateTable.cloneNode(true);
+      fragmentTable.appendChild(tableDo);
+     };
+    function clearDoend(){
+      var tableBrightEnd = document.querySelector(".brightEnd")
+      fragmentTableEnd.removeChild(tableBrightEnd);
+      templateTableEnd = document.querySelector("template.doit").content.querySelector('table');
+      tableEnd = templateTableEnd.cloneNode(true);
+      fragmentTableEnd.appendChild(tableEnd);
+     };
+    var clearStorageBtn = buttonReset.addEventListener('click', function(){
+      localStorage.clear();
+      location.reload();
+    });
+    window.addEventListener('keydown', function(event){
+       if (event.keyCode === 13) {
+        reloadToDo();
+       }
+    });
+  </script>
+</body>
+</html>
